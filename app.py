@@ -9,19 +9,23 @@ def main():
     queue: list[Process] = []
     current_process_in_cpu = None
 
-    for instant in range(total_duration):
-        if instant < 10:
-            print(f" {instant}", end='   ')
-        else: 
-            print(f"{instant}", end='   ')
-    print()
+    output_to_be_written_on_file = f"Input file: {input_file}\nQuantum: {quantum}\n\n"
 
     for instant in range(total_duration):
         if instant < 10:
-            print(f"--", end='---')
+            output_to_be_written_on_file += f" {instant}   "
         else: 
-            print(f"-", end='----')
-    print()
+            output_to_be_written_on_file += f"{instant}   "
+
+    output_to_be_written_on_file += "\n"
+
+    for instant in range(total_duration):
+        if instant < 10:
+            output_to_be_written_on_file += f"-----"
+        else: 
+            output_to_be_written_on_file += f"-----"
+
+    output_to_be_written_on_file += "\n"
 
     for instant in range(total_duration):
         for process in processes:
@@ -32,40 +36,57 @@ def main():
             queue[0].last_entry = instant
             current_process_in_cpu = queue[0]
             queue.pop(0)
-
-        if current_process_in_cpu.current_duration == current_process_in_cpu.duration:
+        elif current_process_in_cpu.current_duration == current_process_in_cpu.duration:
             queue[0].last_entry = instant
             current_process_in_cpu = queue[0]
             queue.pop(0)
-        
-        for io_index, io_instant in enumerate(current_process_in_cpu.io):
-            if current_process_in_cpu.current_duration == io_instant:
-                temp = current_process_in_cpu
-                temp.io.pop(io_index)
-
-                if len(queue) > 0:
-                    queue[0].last_entry = instant
-                    current_process_in_cpu = queue[0]
-                    queue.pop(0)
-                else:
-                    temp.last_entry = instant
-                    current_process_in_cpu = temp
-
-                queue.append(temp)
-                break
-        
-        if instant - current_process_in_cpu.last_entry == quantum:
+        elif instant - current_process_in_cpu.last_entry == quantum:
             temp = current_process_in_cpu
             queue[0].last_entry = instant
             current_process_in_cpu = queue[0]
             queue.append(temp)
             queue.pop(0)
+        else:    
+            for io_index, io_instant in enumerate(current_process_in_cpu.io):
+                if current_process_in_cpu.current_duration == io_instant:
+                    temp = current_process_in_cpu
+                    temp.io.pop(io_index)
+
+                    if len(queue) > 0:
+                        queue[0].last_entry = instant
+                        current_process_in_cpu = queue[0]
+                        queue.pop(0)
+                    else:
+                        temp.last_entry = instant
+                        current_process_in_cpu = temp
+
+                    queue.append(temp)
+                    break
+    
         
-        if current_process_in_cpu is not None:
-            current_process_in_cpu.current_duration += 1
-        print(f"{current_process_in_cpu.name}" if current_process_in_cpu is not None else '  ', end=' | ')
-            
-            
+        current_process_in_cpu.current_duration += 1
+
+        for process in queue:
+            for i in range(len(processes)):
+                if process.name == processes[i].name:
+                    processes[i].time_in_queue += 1
+
+        output_to_be_written_on_file += f"{current_process_in_cpu.name} | " if current_process_in_cpu is not None else '  '
+
+    output_to_be_written_on_file += "\n\nTempos de espera:\n"
+
+    s = 0
+    for process in processes:
+        s += process.time_in_queue
+        output_to_be_written_on_file += f"{process.name}: {process.time_in_queue}\n"
+
+    output_to_be_written_on_file += f"\nTempo de espera médio: {s/len(processes)}"
+    
+    with open(f"{input_file.split('.txt')[0]}.output.txt", 'w') as f:
+        f.write(output_to_be_written_on_file)
+
+    print(f"Outputs em '{input_file.split('.txt')[0]}.output.txt'")
+                
 
 if __name__ == '__main__':
     main()

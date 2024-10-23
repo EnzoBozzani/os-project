@@ -5,6 +5,7 @@ class Process:
     io: list[int]
     current_duration: int
     last_entry: int | None
+    time_in_queue: int
 
     def __init__(self, name, arrival, duration, io):
         self.name = name
@@ -13,3 +14,4 @@ class Process:
         self.io = io
         self.current_duration = 0
         self.last_entry = None
+        self.time_in_queue = 0
