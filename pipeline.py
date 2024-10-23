@@ -1,9 +1,7 @@
 from utils import read_args, get_processes_and_total_duration
 from models import Process
 
-def main():
-    quantum, input_file = read_args()
-
+def pipeline(quantum, input_file):
     processes, total_duration = get_processes_and_total_duration(input_file)
 
     queue: list[Process] = []
@@ -87,6 +85,3 @@ def main():
 
     print(f"Outputs em '{input_file.split('.txt')[0]}.output.txt'")
                 
-
-if __name__ == '__main__':
-    main()
