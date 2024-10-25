@@ -1,4 +1,4 @@
-from utils import read_args, get_processes_and_total_duration
+from utils import get_processes_and_total_duration
 from models import Process
 
 def pipeline(quantum, input_file):
