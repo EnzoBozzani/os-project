@@ -1,5 +1,4 @@
-from utils import get_processes_and_total_duration
-from models import Process
+from utils import get_processes_and_total_duration, Process
 
 def pipeline(quantum, input_file):
     processes, total_duration = get_processes_and_total_duration(input_file)
@@ -29,22 +28,32 @@ def pipeline(quantum, input_file):
     for instant in range(total_duration):
 
         output += f"********** TEMPO {instant} **************\n"
-
-        for process in processes:
-            if process.arrival == instant:
-                output += f"#[evento] CHEGADA <{process.name}>\n"
-                queue.append(process)
         
-        if len(queue) > 0 and current_process_in_cpu is None:
+        if current_process_in_cpu is None:
+            for process in processes:
+                if process.arrival == instant:
+                    output += f"#[evento] CHEGADA <{process.name}>\n"
+                    queue.append(process)
+
             queue[0].last_entry = instant
             current_process_in_cpu = queue[0]
             queue.pop(0)
         elif current_process_in_cpu.current_duration == current_process_in_cpu.duration:
+            for process in processes:
+                if process.arrival == instant:
+                    output += f"#[evento] CHEGADA <{process.name}>\n"
+                    queue.append(process)
+
             output += f"#[evento] ENCERRANDO <{current_process_in_cpu.name}>\n"
             queue[0].last_entry = instant
             current_process_in_cpu = queue[0]
             queue.pop(0)
         elif instant - current_process_in_cpu.last_entry == quantum:
+            for process in processes:
+                if process.arrival == instant:
+                    output += f"#[evento] CHEGADA <{process.name}>\n"
+                    queue.append(process)
+
             output += f"#[evento] FIM QUANTUM <{current_process_in_cpu.name}>\n"
             temp = current_process_in_cpu
             queue[0].last_entry = instant
@@ -68,6 +77,11 @@ def pipeline(quantum, input_file):
                         current_process_in_cpu = temp
 
                     break
+            
+            for process in processes:
+                if process.arrival == instant:
+                    output += f"#[evento] CHEGADA <{process.name}>\n"
+                    queue.append(process)
     
         
         current_process_in_cpu.current_duration += 1
@@ -81,7 +95,7 @@ def pipeline(quantum, input_file):
         
         if len(queue) > 0:
             for p in queue:
-                output += f"{p.name}({p.duration - p.current_duration + 1}) "
+                output += f"{p.name}({p.duration - p.current_duration}) "
         else: 
             output += "Nao ha processos na fila"
         
