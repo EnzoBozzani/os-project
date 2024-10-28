@@ -20,7 +20,7 @@ def run_pipeline(quantum, input_file, output, output_path):
 
     path_arr = path.split('.txt')
 
-    path_arr.append('.output.txt')
+    path_arr.append('.grafico.txt')
 
     output_file = f"{path_arr[0]}{path_arr[2]}"
 
@@ -28,7 +28,7 @@ def run_pipeline(quantum, input_file, output, output_path):
         output.delete(1.0, tk.END) 
 
         output_path.delete(0, tk.END)
-        output_path.insert(tk.END, output_file)
+        output_path.insert(tk.END, f"Outputs em '{path_arr[0]}.saida.txt' e '{path_arr[0]}.grafico.txt'")
         
         for line in f.readlines():
             output.insert(tk.END, line)
@@ -43,7 +43,7 @@ def main():
     label_quantum = tk.Label(w, text="Quantum:")
     quantum = tk.Entry(w, width=30)
     output = tk.Text(w, width=200, height=30)
-    output_path = tk.Entry(w, width=30)
+    output_path = tk.Entry(w, width=100)
     file_btn = tk.Button(w, text="Selecionar arquivo", command=lambda: upload_file(input_file))
     run_btn = tk.Button(w, text="Processar", command=lambda: run_pipeline(quantum, input_file, output, output_path))
 

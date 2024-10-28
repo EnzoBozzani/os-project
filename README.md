@@ -21,10 +21,18 @@ P4 1 7 3,6
 P5 17 2
 ```
 
-2. Rodar o programa (onde `x` equivale ao quantum e `caminho-do-seu-arquivo.txt` equivale ao caminho do seu arquivo de input):
+2. Rodar a aplicação:
 
-```
-python app.py --quantum x --input-file caminho-do-seu-arquivo.txt
-```
+    a. Via CLI (onde `x` equivale ao quantum e `caminho-do-seu-arquivo.txt` equivale ao caminho do seu arquivo de input):
+
+    ```
+    python cli.py --quantum x --input-file caminho-do-seu-arquivo.txt
+    ```
+
+    b. Via interface
+
+    ```
+    python interface.py
+    ```
 
 3. O output estará disponível em `caminho-do-seu-arquivo.output.txt`

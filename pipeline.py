@@ -7,27 +7,32 @@ def pipeline(quantum, input_file):
     queue: list[Process] = []
     current_process_in_cpu = None
 
-    output_to_be_written_on_file = f"Input file: {input_file}\nQuantum: {quantum}\n\n"
+    chart_output = f"Input file: {input_file}\nQuantum: {quantum}\n\n"
+    output = f"***********************************\n***** ESCALONADOR ROUND ROBIN *****\n----------------------------------\n------- INICIANDO SIMULACAO -------\n----------------------------------\n"
 
     for instant in range(total_duration):
         if instant < 10:
-            output_to_be_written_on_file += f" {instant}   "
+            chart_output += f" {instant}   "
         else: 
-            output_to_be_written_on_file += f"{instant}   "
+            chart_output += f"{instant}   "
 
-    output_to_be_written_on_file += "\n"
+    chart_output += "\n"
 
     for instant in range(total_duration):
         if instant < 10:
-            output_to_be_written_on_file += f"-----"
+            chart_output += f"-----"
         else: 
-            output_to_be_written_on_file += f"-----"
+            chart_output += f"-----"
 
-    output_to_be_written_on_file += "\n"
+    chart_output += "\n"
 
     for instant in range(total_duration):
+
+        output += f"********** TEMPO {instant} **************\n"
+
         for process in processes:
             if process.arrival == instant:
+                output += f"#[evento] CHEGADA <{process.name}>\n"
                 queue.append(process)
         
         if len(queue) > 0 and current_process_in_cpu is None:
@@ -35,10 +40,12 @@ def pipeline(quantum, input_file):
             current_process_in_cpu = queue[0]
             queue.pop(0)
         elif current_process_in_cpu.current_duration == current_process_in_cpu.duration:
+            output += f"#[evento] ENCERRANDO <{current_process_in_cpu.name}>\n"
             queue[0].last_entry = instant
             current_process_in_cpu = queue[0]
             queue.pop(0)
         elif instant - current_process_in_cpu.last_entry == quantum:
+            output += f"#[evento] FIM QUANTUM <{current_process_in_cpu.name}>\n"
             temp = current_process_in_cpu
             queue[0].last_entry = instant
             current_process_in_cpu = queue[0]
@@ -50,15 +57,16 @@ def pipeline(quantum, input_file):
                     temp = current_process_in_cpu
                     temp.io.pop(io_index)
 
+                    output += f"#[evento] OPERACAO I/O <{current_process_in_cpu.name}>\n"
                     if len(queue) > 0:
                         queue[0].last_entry = instant
                         current_process_in_cpu = queue[0]
                         queue.pop(0)
+                        queue.append(temp)
                     else:
                         temp.last_entry = instant
                         current_process_in_cpu = temp
 
-                    queue.append(temp)
                     break
     
         
@@ -69,19 +77,34 @@ def pipeline(quantum, input_file):
                 if process.name == processes[i].name:
                     processes[i].time_in_queue += 1
 
-        output_to_be_written_on_file += f"{current_process_in_cpu.name} | " if current_process_in_cpu is not None else '  '
+        output += "FILA: "
+        
+        if len(queue) > 0:
+            for p in queue:
+                output += f"{p.name}({p.duration - p.current_duration + 1}) "
+        else: 
+            output += "Nao ha processos na fila"
+        
+        output += f"\nCPU: {current_process_in_cpu.name}({current_process_in_cpu.duration - current_process_in_cpu.current_duration + 1})\n"
 
-    output_to_be_written_on_file += "\n\nTempos de espera:\n"
+        chart_output += f"{current_process_in_cpu.name} | " if current_process_in_cpu is not None else '  '
+
+    chart_output += "\n\nTempos de espera:\n"
+
+    output += f"********** TEMPO {total_duration} *************\n#[evento] ENCERRANDO <{current_process_in_cpu.name}>\nFILA: Nao ha processos na fila\nACABARAM OS PROCESSOS!!!\n----------------------------------\n------ Encerrando simulacao ------\n----------------------------------"
 
     s = 0
     for process in processes:
         s += process.time_in_queue
-        output_to_be_written_on_file += f"{process.name}: {process.time_in_queue}\n"
+        chart_output += f"{process.name}: {process.time_in_queue}\n"
 
-    output_to_be_written_on_file += f"\nTempo de espera médio: {s/len(processes)}"
+    chart_output += f"\nTempo de espera médio: {s/len(processes)}"
     
-    with open(f"{input_file.split('.txt')[0]}.output.txt", 'w') as f:
-        f.write(output_to_be_written_on_file)
+    with open(f"{input_file.split('.txt')[0]}.grafico.txt", 'w') as f:
+        f.write(chart_output)
+    
+    with open(f"{input_file.split('.txt')[0]}.saida.txt", 'w') as f:
+        f.write(output)
 
-    print(f"Outputs em '{input_file.split('.txt')[0]}.output.txt'")
+    print(f"Outputs em '{input_file.split('.txt')[0]}.grafico.txt' e '{input_file.split('.txt')[0]}.saida.txt'")
                 
