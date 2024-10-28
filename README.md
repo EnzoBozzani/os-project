@@ -35,4 +35,4 @@ P5 17 2
     python interface.py
     ```
 
-3. O output estará disponível em `caminho-do-seu-arquivo.output.txt`
+3. O outputs estarão disponíveis em `caminho-do-seu-arquivo.saida.txt` e `caminho-do-seu-arquivo.grafico.txt`
