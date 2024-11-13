@@ -56,10 +56,14 @@ def pipeline(quantum, input_file):
 
             output += f"#[evento] FIM QUANTUM <{current_process_in_cpu.name}>\n"
             temp = current_process_in_cpu
-            queue[0].last_entry = instant
-            current_process_in_cpu = queue[0]
-            queue.append(temp)
-            queue.pop(0)
+            if len(queue) > 0:
+                queue[0].last_entry = instant
+                current_process_in_cpu = queue[0]
+                queue.append(temp)
+                queue.pop(0)
+            else:
+                temp.last_entry = instant
+                current_process_in_cpu = temp
         else:    
             for io_index, io_instant in enumerate(current_process_in_cpu.io):
                 if current_process_in_cpu.current_duration == io_instant:
